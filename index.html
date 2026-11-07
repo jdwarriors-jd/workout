@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Workout">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#e6e2dc">
+<title>Gym Workout</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  button, input, select { font-family: inherit; }
+  body { background: #f0ede8; color: #2a2520; font-family: Georgia, serif; min-height: 100vh; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .nav-bar { display: flex; background: #e6e2dc; border-bottom: 1px solid #d4cfc8; }
+  .nav-bar-btn { flex: 1; padding: 14px 8px; border: none; background: transparent; color: #9a9088; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: Georgia, serif; transition: all 0.15s; }
+  .nav-bar-btn.active { color: #2a2520; border-bottom: 2px solid #2a2520; }
+
+  .home-header { padding: 28px 20px 12px; }
+  .home-label { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #9a9088; margin-bottom: 4px; }
+  .home-title { font-size: 28px; font-weight: bold; letter-spacing: -0.5px; }
+  .day-tabs { display: flex; gap: 8px; padding: 16px 20px; overflow-x: auto; }
+  .day-tab { flex: 0 0 auto; padding: 10px 18px; border-radius: 24px; border: 2px solid #d4cfc8; background: transparent; color: #8a837a; font-size: 13px; cursor: pointer; letter-spacing: 1px; font-family: Georgia, serif; transition: all 0.15s; }
+  .day-tab.active { color: #fff; font-weight: bold; }
+  .workout-card { margin: 4px 20px 20px; border-radius: 16px; padding: 18px 20px; }
+  .workout-day-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+  .workout-day-title { font-size: 26px; font-weight: bold; margin-bottom: 2px; }
+  .workout-day-sub { font-size: 13px; color: #7a736a; }
+  .session-tags { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .session-tag { background: #e6e2dc; border: 1px solid #d4cfc8; border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #6a635a; }
+  .rest-note { margin: 0 20px 16px; background: #e6e2dc; border: 1px solid #d4cfc8; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #6a635a; line-height: 1.5; }
+  .rest-note span { color: #2a2520; font-weight: bold; }
+  .ex-list-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #9a9088; margin: 0 20px 14px; }
+  .ex-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #e9e5e0; border: 1px solid #d4cfc8; border-radius: 14px; padding: 16px 18px; margin: 0 20px 10px; cursor: pointer; text-align: left; transition: all 0.15s; width: calc(100% - 40px); }
+  .ex-item-name { font-size: 16px; font-weight: bold; color: #2a2520; margin-bottom: 3px; }
+  .ex-item-sets { font-size: 13px; color: #8a837a; }
+  .ex-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .ex-item-arrow { font-size: 20px; color: #c0b8b0; }
+
+  .detail-header { padding: 20px 24px 16px; display: flex; align-items: center; gap: 14px; }
+  .back-btn { background: rgba(0,0,0,0.25); border: none; color: #fff; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .detail-day-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 2px; }
+  .detail-ex-name { font-size: 19px; font-weight: bold; color: #fff; line-height: 1.2; }
+  .detail-body { padding: 20px 20px 50px; max-width: 500px; margin: 0 auto; }
+  .demo-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 15px; font-weight: bold; color: #fff; cursor: pointer; font-family: Georgia, serif; margin-bottom: 16px; text-decoration: none; }
+  .muscle-tag { display: inline-block; border-radius: 20px; padding: 4px 14px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .sets-box { background: #e9e5e0; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+  .sets-label { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+  .sets-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .set-btn { width: 52px; height: 52px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.15s; font-family: Georgia, serif; border: 2px solid #c0b8b0; background: transparent; color: #9a9088; flex-shrink: 0; }
+  .set-btn.done { color: #fff; }
+  .sets-rows-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .set-row-item { display: flex; align-items: center; gap: 12px; }
+  .weight-input-wrap { flex: 1; }
+  .weight-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #d4cfc8; background: #f7f4f0; font-size: 15px; font-family: Georgia, serif; color: #2a2520; outline: none; transition: border-color 0.15s; }
+  .weight-input:focus { border-color: #9a9088; }
+  .weight-input::placeholder { color: #b8b0a8; }
+  /* hide number spinners */
+  .weight-input::-webkit-inner-spin-button, .weight-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .weight-input[type=number] { -moz-appearance: textfield; }
+  .steps-box { background: #e9e5e0; border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #d4cfc8; }
+  .steps-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #8a837a; margin-bottom: 16px; }
+  .step-row { display: flex; gap: 14px; margin-bottom: 14px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-text { font-size: 15px; line-height: 1.6; color: #3a342e; }
+  .tip-box { background: #dedad4; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; border: 1px solid #cac4bc; }
+  .tip-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .tip-text { font-size: 15px; line-height: 1.6; color: #3a342e; }
+
+  .alts-box { background: #e9e5e0; border-radius: 12px; padding: 16px 18px; border: 1px solid #d4cfc8; margin-bottom: 16px; }
+  .alts-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #9a9088; margin-bottom: 12px; }
+  .alt-row { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #d0cbc4; }
+  .alt-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .alt-tag { display: inline-block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; padding: 2px 7px; margin-bottom: 4px; font-weight: bold; }
+  .alt-tag.equipment { background: #d0dfef; color: #3a6090; }
+  .alt-tag.movement { background: #cce8d4; color: #2d6e40; }
+  .alt-name { font-size: 14px; color: #2a2520; font-weight: bold; margin-bottom: 2px; }
+  .alt-desc { font-size: 13px; color: #7a736a; line-height: 1.5; }
+
+  .detail-nav-row { display: flex; gap: 12px; margin-top: 8px; }
+  .detail-nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: Georgia, serif; }
+  .detail-nav-btn.prev { border: 1px solid #c0b8b0; background: transparent; color: #6a635a; }
+  .detail-nav-btn.next { border: none; color: #fff; font-weight: bold; }
+
+  .links-header { padding: 28px 20px 16px; }
+  .links-title { font-size: 28px; font-weight: bold; margin-bottom: 6px; }
+  .links-sub { font-size: 14px; color: #8a837a; line-height: 1.5; }
+  .links-day-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #9a9088; margin: 20px 20px 10px; }
+  .link-item { display: flex; align-items: center; justify-content: space-between; background: #e9e5e0; border: 1px solid #d4cfc8; border-radius: 12px; padding: 14px 18px; margin: 0 20px 8px; text-decoration: none; }
+  .link-item-name { font-size: 15px; color: #2a2520; font-family: Georgia, serif; }
+  .link-item-arrow { font-size: 16px; color: #9a9088; }
+  .links-bottom-pad { height: 40px; }
+
+  /* Stretch screen */
+  .stretch-header { padding: 28px 20px 12px; }
+  .stretch-title { font-size: 28px; font-weight: bold; letter-spacing: -0.5px; }
+  .stretch-sub { font-size: 14px; color: #8a837a; margin-top: 4px; line-height: 1.5; }
+  .stretch-duration { display: inline-block; background: #7a6a9922; color: #7a6a99; border-radius: 20px; padding: 4px 14px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-top: 10px; }
+  .stretch-list-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #9a9088; margin: 16px 20px 14px; }
+  .stretch-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #e9e5e0; border: 1px solid #d4cfc8; border-radius: 14px; padding: 16px 18px; margin: 0 20px 10px; cursor: pointer; text-align: left; transition: all 0.15s; width: calc(100% - 40px); }
+  .stretch-item-name { font-size: 16px; font-weight: bold; color: #2a2520; margin-bottom: 3px; }
+  .stretch-item-sub { font-size: 13px; color: #8a837a; }
+  .stretch-item-arrow { font-size: 20px; color: #c0b8b0; }
+  .stretch-note { margin: 16px 20px 20px; background: #e6e2dc; border: 1px solid #d4cfc8; border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #6a635a; line-height: 1.5; }
+  .stretch-note span { color: #2a2520; font-weight: bold; }
+  .stretch-bottom-pad { height: 40px; }
+
+  /* Stretch detail */
+  .stretch-detail-body { padding: 20px 20px 50px; max-width: 500px; margin: 0 auto; }
+  .stretch-why-box { background: #7a6a9912; border: 1px solid #7a6a9933; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .stretch-why-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a6a99; margin-bottom: 8px; }
+  .stretch-why-text { font-size: 15px; line-height: 1.6; color: #3a342e; }
+
+  /* Timer */
+  .timer-box { background: #e9e5e0; border-radius: 16px; padding: 24px 20px; margin-bottom: 16px; text-align: center; border: 1px solid #d4cfc8; }
+  .timer-side-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #7a6a99; margin-bottom: 16px; font-weight: bold; }
+  .timer-ring-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 16px; }
+  .timer-ring-svg { transform: rotate(-90deg); }
+  .timer-ring-bg { fill: none; stroke: #d4cfc8; stroke-width: 6; }
+  .timer-ring-fg { fill: none; stroke: #7a6a99; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.3s linear; }
+  .timer-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 36px; font-weight: bold; color: #2a2520; font-family: Georgia, serif; }
+  .timer-controls { display: flex; gap: 10px; justify-content: center; }
+  .timer-btn { padding: 12px 28px; border-radius: 12px; border: none; font-size: 15px; font-weight: bold; cursor: pointer; font-family: Georgia, serif; transition: all 0.15s; }
+  .timer-btn.primary { background: #7a6a99; color: #fff; }
+  .timer-btn.secondary { background: transparent; border: 1px solid #c0b8b0; color: #6a635a; }
+  .timer-btn.primary:active { background: #6a5a89; }
+  .timer-done { color: #4a8a65; font-size: 15px; font-weight: bold; margin-top: 10px; }
+
+  .stretch-nav-row { display: flex; gap: 12px; margin-top: 8px; }
+  .stretch-nav-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: Georgia, serif; }
+  .stretch-nav-btn.prev { border: 1px solid #c0b8b0; background: transparent; color: #6a635a; }
+  .stretch-nav-btn.next { border: none; background: #7a6a99; color: #fff; font-weight: bold; }
+
+  /* Logging date + last-session hint */
+  .log-date-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #d4cfc8; font-size: 13px; color: #6a635a; }
+  .log-date-input { padding: 6px 10px; border-radius: 8px; border: 1.5px solid #d4cfc8; background: #f7f4f0; font-family: Georgia, serif; font-size: 14px; color: #2a2520; }
+  .sets-hint { font-size: 12px; color: #9a9088; margin-top: 12px; line-height: 1.5; }
+  .last-time { font-size: 13px; color: #6a635a; margin-bottom: 12px; line-height: 1.5; }
+  .last-time b { color: #2a2520; }
+
+  /* Progress screen */
+  .prog-header { padding: 28px 20px 8px; }
+  .prog-title { font-size: 28px; font-weight: bold; letter-spacing: -0.5px; }
+  .prog-sub { font-size: 14px; color: #8a837a; margin-top: 4px; line-height: 1.5; }
+  .prog-select { display: block; width: calc(100% - 40px); margin: 14px 20px; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #d4cfc8; background: #f7f4f0; font-size: 16px; font-family: Georgia, serif; color: #2a2520; }
+  .prog-card { background: #e9e5e0; border: 1px solid #d4cfc8; border-radius: 16px; margin: 0 20px 16px; padding: 18px 16px; }
+  .prog-card-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #8a837a; margin-bottom: 12px; }
+  .stat-row { display: flex; gap: 10px; margin: 0 20px 16px; }
+  .stat { flex: 1; background: #e9e5e0; border: 1px solid #d4cfc8; border-radius: 12px; padding: 12px; }
+  .stat-val { font-size: 22px; font-weight: bold; color: #2a2520; }
+  .stat-lbl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #9a9088; margin-top: 2px; }
+  .chart-wrap { position: relative; }
+  .chart-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-tip { position: absolute; pointer-events: none; background: #2a2520; color: #fff; font-size: 12px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -115%); display: none; line-height: 1.4; }
+  .chart-empty { font-size: 14px; color: #8a837a; padding: 24px 4px; text-align: center; line-height: 1.5; }
+  .hist-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #d0cbc4; font-size: 14px; }
+  .hist-row:last-child { border-bottom: none; }
+  .hist-date { width: 92px; flex-shrink: 0; color: #6a635a; }
+  .hist-sets { flex: 1; color: #2a2520; }
+  .hist-del { background: transparent; border: none; color: #b8b0a8; font-size: 18px; cursor: pointer; padding: 0 4px; }
+  .data-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .data-btn { flex: 1 1 140px; padding: 12px; border-radius: 10px; border: 1px solid #c0b8b0; background: transparent; color: #2a2520; font-size: 14px; font-family: Georgia, serif; cursor: pointer; }
+  .data-btn.primary { background: #2a2520; color: #fff; border-color: #2a2520; }
+  .data-note { font-size: 13px; color: #6a635a; line-height: 1.5; margin-top: 12px; }
+  .sync-in { margin-bottom: 10px; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div id="screenHome" class="screen active">
+  <div class="nav-bar" data-tab="Home"></div>
+  <div class="home-header">
+    <div class="home-label">Gym Program</div>
+    <div class="home-title">Today's Workout</div>
+    <div class="sync-status" style="font-size:12px;margin-top:6px"></div>
+  </div>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="workout-card" id="workoutCard"></div>
+  <div class="rest-note">Rest between sets: <span>60 sec</span> target — take 90 if needed, 45 if it feels easy.</div>
+  <div class="ex-list-label">Exercises — tap for instructions</div>
+  <div id="exList"></div>
+</div>
+
+<div id="screenDetail" class="screen">
+  <div class="detail-header" id="detailHeader"></div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<div id="screenLinks" class="screen">
+  <div class="nav-bar" data-tab="Links"></div>
+  <div class="links-header">
+    <div class="links-title">Demo Links</div>
+    <div class="links-sub">If a link doesn't work, search the exercise name on musclewiki.com directly.</div>
+  </div>
+  <div id="linksList"></div>
+  <div class="links-bottom-pad"></div>
+</div>
+
+<div id="screenStretch" class="screen">
+  <div class="nav-bar" data-tab="Stretch"></div>
+  <div class="stretch-header">
+    <div class="home-label">Nightly Routine</div>
+    <div class="stretch-title">Stretching</div>
+    <div class="stretch-sub">Recovery, mobility, longevity. Every night, even rest days.</div>
+    <div class="stretch-duration">~6 min · 45 sec holds</div>
+  </div>
+  <div class="stretch-note">Hold each stretch for the full <span>45 seconds</span> — shorter doesn't produce lasting tissue change. If short on time, cut from the bottom up.</div>
+  <div class="stretch-list-label">Stretches — tap for instructions & timer</div>
+  <div id="stretchList"></div>
+  <div class="stretch-bottom-pad"></div>
+</div>
+
+<div id="screenProgress" class="screen">
+  <div class="nav-bar" data-tab="Progress"></div>
+  <div class="prog-header">
+    <div class="home-label">Weight Log</div>
+    <div class="prog-title">Progress</div>
+    <div class="prog-sub">Top-set weight per session. Exercises shared across days (Leg Press, Lat Pulldown, Chest Press) pool their history.</div>
+  </div>
+  <select class="prog-select" id="progSelect" onchange="progEx=this.value;renderProgress()"></select>
+  <div id="progBody"></div>
+  <div class="prog-card" id="syncCard"></div>
+  <div class="prog-card">
+    <div class="prog-card-label">Your data</div>
+    <div class="data-btns">
+      <button class="data-btn primary" onclick="exportCSV()">Export CSV</button>
+      <button class="data-btn" onclick="exportBackup()">Backup (JSON)</button>
+      <button class="data-btn" onclick="document.getElementById('restoreFile').click()">Restore backup</button>
+      <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+    </div>
+    <div class="data-note" id="dataNote"></div>
+  </div>
+  <div class="links-bottom-pad"></div>
+</div>
+
+<div id="screenStretchDetail" class="screen">
+  <div class="detail-header" id="stretchDetailHeader" style="background:#7a6a99"></div>
+  <div class="stretch-detail-body" id="stretchDetailBody"></div>
+</div>
+
+<script>
+const WORKOUTS = {
+  Monday: {
+    label:"MON", title:"Push", subtitle:"Chest · Shoulders · Triceps", accent:"#5b7fa6",
+    exercises:[
+      {
+        name:"Machine Chest Press", wiki:"machine-chest-press", sets:"3 × 12",
+        muscles:"Chest, front shoulders, triceps",
+        tip:"Adjust the seat so handles are at chest height — too high strains the shoulders.",
+        how:["Adjust seat height so handles align with mid-chest","Sit back fully against the pad, feet flat on floor","Press handles forward until arms are nearly extended","Lower slowly back to chest — don't let the weight stack drop"],
+        alts:[
+          {type:"equipment", name:"Smith Machine Bench Press", desc:"Guided bar, more stable than free weights. Same movement pattern."},
+          {type:"equipment", name:"Dumbbell Bench Press", desc:"Free weight version. More range of motion but requires more stabilization."},
+          {type:"movement", name:"Push-Up", desc:"Bodyweight version. Elevate feet on a bench to increase difficulty."},
+          {type:"movement", name:"Cable Chest Press", desc:"Set cables at chest height, press forward. Constant tension throughout."},
+        ]
+      },
+      {
+        name:"Dumbbell Shoulder Press", wiki:"dumbbell-seated-overhead-press", sets:"3 × 12",
+        muscles:"Shoulders, triceps",
+        tip:"Start lighter than you think. Shoulders fatigue fast.",
+        how:["Hold dumbbells at shoulder height, palms facing forward","Press straight up until arms are extended","Lower slowly back to shoulder height","Keep core tight — don't arch your lower back"],
+        alts:[
+          {type:"equipment", name:"Machine Shoulder Press", desc:"Planet Fitness has these — same movement, fixed path, easier on joints."},
+          {type:"equipment", name:"Smith Machine Overhead Press", desc:"Guided bar overhead press. Keep feet slightly forward."},
+          {type:"movement", name:"Arnold Press", desc:"Start with palms facing you, rotate to forward as you press. Hits all three delt heads."},
+          {type:"movement", name:"Cable Lateral Raise", desc:"If shoulders are fatigued, swap to a lighter isolation movement instead."},
+        ]
+      },
+      {
+        name:"Dumbbell Lateral Raise", wiki:"dumbbell-lateral-raise", sets:"3 × 12",
+        muscles:"Side shoulders",
+        tip:"If you're swinging your body, go lighter.",
+        how:["Stand holding light dumbbells at your sides","Raise arms out to sides with a slight elbow bend","Stop when arms are parallel to the floor (T-shape)","Lower slowly — don't let them drop"],
+        alts:[
+          {type:"equipment", name:"Cable Lateral Raise", desc:"Set cable to low position, one arm at a time. More constant tension than dumbbells."},
+          {type:"equipment", name:"Machine Lateral Raise", desc:"Some Planet Fitness locations have a lateral raise machine — use it if available."},
+          {type:"movement", name:"Upright Row (light)", desc:"Grip dumbbells narrow, pull up to chin with elbows flaring out. Similar muscle hit."},
+        ]
+      },
+      {
+        name:"Tricep Pushdown", wiki:"cable-rope-pushdown", sets:"3 × 12",
+        muscles:"Triceps",
+        tip:"Elbows stay glued to your ribs. Only your forearms move.",
+        how:["Stand at cable machine, grip rope/bar with both hands","Keep elbows pinned to your sides — they don't move","Push straight down until arms fully extended","Slowly let it rise back to starting position"],
+        alts:[
+          {type:"equipment", name:"Overhead Tricep Extension (cable)", desc:"Set cable high, face away, extend arms overhead. Hits the long head more."},
+          {type:"equipment", name:"Tricep Kickback (dumbbell)", desc:"Bend over, upper arm parallel to floor, extend at elbow. Use light weight."},
+          {type:"movement", name:"Bench Dip", desc:"Hands on bench behind you, lower yourself by bending elbows. Bodyweight, no equipment needed."},
+          {type:"movement", name:"Diamond Push-Up", desc:"Push-up with hands close together forming a triangle. Good bodyweight alternative."},
+        ]
+      },
+    ]
+  },
+  Tuesday: {
+    label:"TUE", title:"Legs", subtitle:"Quads · Hamstrings · Glutes · Calves", accent:"#a05a5a",
+    exercises:[
+      {
+        name:"Leg Press", wiki:"machine-leg-press", sets:"3 × 12",
+        muscles:"Quads, glutes, hamstrings",
+        tip:"Don't let your lower back lift off the seat as you go deep.",
+        how:["Sit in machine, feet flat on platform shoulder-width apart","Place feet mid-to-high on platform to target glutes more","Lower platform bending knees to ~90 degrees","Press back up without locking knees completely"],
+        alts:[
+          {type:"equipment", name:"Smith Machine Squat", desc:"Guided bar squat. Feet slightly forward of hips. More stable than free barbell."},
+          {type:"equipment", name:"Hack Squat Machine", desc:"If your PF has one — great quad isolation with back supported."},
+          {type:"movement", name:"Goblet Squat", desc:"Hold one dumbbell at chest, squat down. Easier to learn than barbell variations."},
+          {type:"movement", name:"Dumbbell Sumo Squat", desc:"Wide stance, toes out, dumbbell hanging between legs. Good glute emphasis."},
+        ]
+      },
+      {
+        name:"Leg Curl", wiki:"seated-leg-curl", sets:"3 × 12",
+        muscles:"Hamstrings",
+        tip:"Slow on the way down is where most of the benefit is.",
+        how:["Adjust machine so pad sits just above your heels","Curl legs toward your body as far as comfortable","Squeeze at the top for a moment","Lower slowly — don't let the weight crash back"],
+        alts:[
+          {type:"equipment", name:"Lying Leg Curl Machine", desc:"Face down version — same muscle, slightly different feel. Use whichever is free."},
+          {type:"equipment", name:"Cable Leg Curl", desc:"Attach ankle cuff to low cable, curl one leg at a time. Good if machines are taken."},
+          {type:"movement", name:"Dumbbell Romanian Deadlift", desc:"Hinge at hips with dumbbells. Excellent hamstring stretch under load."},
+          {type:"movement", name:"Good Morning", desc:"Bar on shoulders (or hands behind head), hinge forward. Targets hamstrings and lower back."},
+        ]
+      },
+      {
+        name:"Leg Extension", wiki:"machine-leg-extension", sets:"3 × 12",
+        muscles:"Quads",
+        tip:"Full extension at the top, but don't hyperextend your knees.",
+        how:["Sit in machine with pad on your lower shins","Extend legs straight out in front","Squeeze quads at the top","Lower slowly back to starting position"],
+        alts:[
+          {type:"equipment", name:"Cable Leg Extension", desc:"Ankle cuff on low cable, extend one leg at a time. Good unilateral option."},
+          {type:"movement", name:"Wall Sit", desc:"Back against wall, thighs parallel to floor, hold. Isometric quad burn, no equipment."},
+          {type:"movement", name:"Step-Up (dumbbell)", desc:"Step onto a bench holding dumbbells. Quad-dominant with a balance challenge."},
+          {type:"movement", name:"Split Squat", desc:"One foot forward, one back, lower straight down. Hits quads unilaterally."},
+        ]
+      },
+      {
+        name:"Calf Raise", wiki:"dumbbell-calf-raise", sets:"3 × 12",
+        muscles:"Calves",
+        tip:"Go slow and full range of motion — short reps don't do much.",
+        how:["Stand with balls of feet on platform edge, heels hanging","Rise up onto toes as high as you can","Hold for a second at the top","Lower heels below platform for a full stretch"],
+        alts:[
+          {type:"equipment", name:"Seated Calf Raise Machine", desc:"Seated version hits the soleus (deeper calf muscle) more than standing."},
+          {type:"equipment", name:"Smith Machine Calf Raise", desc:"Bar across upper traps, stand on a plate or step, raise heels."},
+          {type:"movement", name:"Single-Leg Calf Raise", desc:"Same movement, one leg at a time. Doubles the load without adding weight."},
+        ]
+      },
+    ]
+  },
+  Thursday: {
+    label:"THU", title:"Pull", subtitle:"Back · Biceps", accent:"#4a8a65",
+    exercises:[
+      {
+        name:"Seated Cable Row", wiki:"machine-seated-cable-row", sets:"3 × 12",
+        muscles:"Mid back, biceps",
+        tip:"Torso barely moves. If you're rocking back and forth, it's too heavy.",
+        how:["Sit at cable row, feet on footrests, knees slightly bent","Grip handle and sit upright — don't round your back","Pull handle into lower chest/upper stomach","Squeeze shoulder blades together at end","Slowly extend arms back, torso stays upright"],
+        alts:[
+          {type:"equipment", name:"Machine Row", desc:"Chest-supported row machine — takes the lower back out of it entirely. Very beginner-friendly."},
+          {type:"equipment", name:"Dumbbell Bent-Over Row", desc:"Stand, hinge forward 45°, row both dumbbells to hips. Keep back flat."},
+          {type:"movement", name:"Single Arm Dumbbell Row", desc:"One knee on bench, row one arm at a time. Easier to keep form than bilateral."},
+          {type:"movement", name:"TRX/Cable Face Pull", desc:"If mid-back is the goal and all rows are taken, face pulls hit similar muscles."},
+        ]
+      },
+      {
+        name:"Lat Pulldown", wiki:"machine-pulldown", sets:"3 × 12",
+        muscles:"Lats, biceps",
+        tip:"Movement comes from your back, not arms. Think elbows down to hips.",
+        how:["Sit at machine, thighs locked under pads","Grip bar wider than shoulder-width, palms away","Pull bar straight down to upper chest","Slowly let bar rise back up with control"],
+        alts:[
+          {type:"equipment", name:"Close Grip Pulldown", desc:"Neutral grip attachment, hands closer together. Easier on shoulders, still hits lats."},
+          {type:"equipment", name:"Straight Arm Pulldown", desc:"Stand, arms straight, pull bar from overhead to hips. Pure lat isolation."},
+          {type:"movement", name:"Assisted Pull-Up Machine", desc:"Planet Fitness has these — counterweight helps you do pull-ups. Best lat builder if available."},
+          {type:"movement", name:"Dumbbell Pullover", desc:"Lie on bench, hold one dumbbell overhead, arc it down to hips. Hits lats differently."},
+        ]
+      },
+      {
+        name:"Dumbbell Curl", wiki:"dumbbell-curl", sets:"3 × 12",
+        muscles:"Biceps",
+        tip:"If elbows are flying forward, the weight is too heavy.",
+        how:["Stand holding dumbbells at sides, palms facing forward","Curl both up toward shoulders","Keep elbows pinned to sides throughout","Lower slowly back down"],
+        alts:[
+          {type:"equipment", name:"Cable Curl", desc:"Low cable with straight bar or rope. Constant tension through the whole movement."},
+          {type:"equipment", name:"Hammer Curl", desc:"Same movement but palms face each other. Hits brachialis (outer arm) more."},
+          {type:"movement", name:"Incline Dumbbell Curl", desc:"Sit on inclined bench, arms hang back. Greater stretch at bottom, harder than flat curl."},
+          {type:"movement", name:"Concentration Curl", desc:"Sit, elbow braced on inner thigh, curl one arm. Good isolation, hard to cheat."},
+        ]
+      },
+      {
+        name:"Reverse Pec Deck", wiki:"machine-reverse-fly", sets:"3 × 12",
+        muscles:"Rear shoulders, upper back",
+        tip:"Use light weight and focus on squeezing your shoulder blades together at the end.",
+        how:["Sit at the pec deck machine facing inward (chest against the pad)","Grip the handles with arms nearly straight out to sides","Pull both arms back as far as comfortable, squeezing rear shoulders","Slowly return to starting position — don't let it snap forward"],
+        alts:[
+          {type:"equipment", name:"Rear Delt Fly (dumbbell)", desc:"Sit on bench, lean forward 90°, raise dumbbells out to sides with slight elbow bend."},
+          {type:"equipment", name:"Cable Reverse Fly", desc:"Set cables at chest height, cross arms, pull out to sides. Good rear delt hit."},
+          {type:"movement", name:"Band Pull-Apart", desc:"Hold a resistance band in front, pull apart to sides. Needs a band but easy to learn."},
+        ]
+      },
+    ]
+  },
+  Friday: {
+    label:"FRI", title:"Full Body", subtitle:"Compound movements", accent:"#8a7040",
+    exercises:[
+      {
+        name:"Leg Press", wiki:"machine-leg-press", sets:"3 × 12",
+        muscles:"Quads, glutes, hamstrings",
+        tip:"Don't let your lower back lift off the seat as you go deep — that's the most common form break.",
+        how:["Sit in machine, feet flat on platform shoulder-width apart","Place feet mid-to-high on platform to target glutes more","Lower platform by bending knees to ~90 degrees","Press back up without locking knees at the top"],
+        alts:[
+          {type:"equipment", name:"Smith Machine Squat", desc:"Guided bar squat. Place feet slightly forward for comfort and safety."},
+          {type:"equipment", name:"Hack Squat Machine", desc:"Back supported squat variation — great quad isolation."},
+          {type:"movement", name:"Goblet Squat", desc:"Hold one dumbbell at chest, squat down. Good if machines are all taken."},
+          {type:"movement", name:"Box Squat", desc:"Squat down to a bench or box, pause, stand back up. Teaches proper depth."},
+        ]
+      },
+      {
+        name:"Romanian Deadlift", wiki:"dumbbell-romanian-deadlift", sets:"3 × 12",
+        muscles:"Hamstrings, glutes, lower back",
+        tip:"Hips go back, not down. Keep dumbbells close to your legs throughout.",
+        how:["Stand holding dumbbells in front of thighs, palms facing you","Push hips back (not down) as you lower dumbbells along legs","Keep back flat — feel stretch in hamstrings","Lower until strong stretch, usually just below knee","Drive hips forward to return to standing"],
+        alts:[
+          {type:"equipment", name:"Cable Pull-Through", desc:"Set cable low, face away, hinge forward pulling rope between legs. Teaches the hip hinge well."},
+          {type:"equipment", name:"Smith Machine RDL", desc:"Same movement with guided bar. Easier to maintain form when learning."},
+          {type:"movement", name:"Good Morning", desc:"Hands behind head or bar on shoulders, hinge forward. Pure hamstring and lower back."},
+          {type:"movement", name:"Single-Leg RDL", desc:"One leg version with one dumbbell. More balance challenge, great glute activation."},
+        ]
+      },
+      {
+        name:"Lat Pulldown", wiki:"machine-pulldown", sets:"3 × 12",
+        muscles:"Lats, biceps, upper back",
+        tip:"Drive your elbows down toward your hips — don't think of it as pulling with your hands.",
+        how:["Sit at machine, thighs locked under pads","Grip bar wider than shoulder-width, palms facing away","Lean back slightly and pull bar down to upper chest","Squeeze shoulder blades together at the bottom","Slowly let the bar rise back up with control"],
+        alts:[
+          {type:"equipment", name:"Close Grip Pulldown", desc:"Neutral grip attachment, hands closer together. Easier on shoulders, still hits lats well."},
+          {type:"equipment", name:"Seated Cable Row", desc:"Horizontal pull — hits mid-back more than lats. Good complement if you want both."},
+          {type:"movement", name:"Assisted Pull-Up Machine", desc:"Planet Fitness has these — counterweight helps you do pull-ups. Best lat builder available."},
+          {type:"movement", name:"Single Arm Row", desc:"One knee on bench, row one dumbbell to hip. More unilateral control but takes longer."},
+        ]
+      },
+      {
+        name:"Machine Chest Press", wiki:"machine-chest-press", sets:"3 × 12",
+        muscles:"Chest, front shoulders, triceps",
+        tip:"Adjust the seat so handles are at chest height. Lower reps here since you did this Monday — focus on feeling the chest work.",
+        how:["Adjust seat height so handles align with mid-chest","Sit back fully against the pad, feet flat on floor","Press handles forward until arms are nearly extended","Lower slowly — controlled negative is where the chest work happens"],
+        alts:[
+          {type:"equipment", name:"Cable Fly", desc:"Set cables at chest height, step forward, bring hands together in front of chest. Good chest isolation."},
+          {type:"equipment", name:"Pec Deck Machine", desc:"Sit, pad on forearms, bring arms together. Pure chest isolation, no triceps involved."},
+          {type:"movement", name:"Push-Up", desc:"Wide hand position. Bodyweight fallback if machines are all taken."},
+          {type:"movement", name:"Dumbbell Chest Fly", desc:"Lie on bench, arc dumbbells out to sides. More stretch at the bottom than machine press."},
+        ]
+      },
+    ]
+  }
+};
+
+const STRETCHES = [
+  {
+    name:"90/90 Hip Stretch",
+    bilateral:true,
+    duration:45,
+    muscles:"Hips · Glutes",
+    video:"https://www.youtube.com/results?search_query=90+90+hip+stretch+how+to",
+    why:"Highest-ROI stretch for longevity — hip mobility deteriorates faster than almost anything else with age, and yours is getting loaded hard by rowing, leg press, and RDLs.",
+    how:["Sit on the floor with your front leg bent 90° in front of you, back leg bent 90° behind","Keep both knees at right angles — shins should be roughly parallel","Lean your torso forward over the front shin until you feel a deep stretch in the front hip","Breathe slowly into the stretch — don't bounce or force it"],
+    tip:"If you can't get flat on the floor, sit on a pillow to elevate your hips and reduce the intensity."
+  },
+  {
+    name:"Half-Kneeling Hip Flexor Stretch",
+    bilateral:true,
+    duration:45,
+    muscles:"Hip flexors · Quads",
+    video:"https://www.youtube.com/results?search_query=half+kneeling+hip+flexor+stretch+how+to",
+    why:"Rowing, elliptical, treadmill, and sitting all keep your hip flexors shortened. This counters that from every direction.",
+    how:["Kneel with one knee on the floor, front foot flat in a lunge position","Squeeze the glute on the kneeling side — this is key, don't skip it","Shift your hips forward until you feel a stretch in the front of the back leg","Keep your torso upright, don't lean forward"],
+    tip:"Put a towel or pillow under your back knee if it's uncomfortable on hard floors."
+  },
+  {
+    name:"Supine Spinal Twist",
+    bilateral:true,
+    duration:45,
+    muscles:"Thoracic spine · Lower back · Chest",
+    video:"https://www.youtube.com/results?search_query=supine+spinal+twist+stretch+how+to",
+    why:"Covers thoracic rotation, lower back decompression, and chest opening in one move. Best stretch for nervous system downregulation before sleep.",
+    how:["Lie on your back, arms extended out to the sides in a T","Bring one knee up and cross it over your body to the opposite side","Let gravity pull the knee toward the floor — don't force it","Turn your head to face the opposite direction from the knee","Relax your shoulders — both should stay as flat as possible"],
+    tip:"This one should feel good, not effortful. If you're fighting it, you're doing it wrong."
+  },
+  {
+    name:"Lying Hamstring Stretch",
+    bilateral:true,
+    duration:45,
+    muscles:"Hamstrings",
+    video:"https://www.youtube.com/results?search_query=lying+hamstring+stretch+supine+how+to",
+    why:"RDLs and all the walking volume will keep these chronically tight if you don't counter it. Keeps your hip hinge range of motion honest.",
+    how:["Lie on your back with both legs flat on the floor","Pull one leg up straight toward the ceiling","Use a towel or strap around the foot if you can't reach comfortably","Keep the leg as straight as you can — slight bend is fine","Keep the other leg flat on the floor, not floating up"],
+    tip:"The goal is a strong stretch, not pain. If you can't straighten the leg much, that's fine — it'll improve."
+  },
+  {
+    name:"Child's Pose",
+    bilateral:false,
+    duration:30,
+    muscles:"Lats · Lower back",
+    video:"https://www.youtube.com/results?search_query=child%27s+pose+yoga+stretch+how+to",
+    why:"Decompresses the lower back and stretches lats — which you're rowing and pulling on four days a week. Serves as the wind-down closer.",
+    how:["Kneel on the floor, spread your knees wide apart","Sit your hips back toward your heels","Walk your hands forward and lower your forehead to the floor","Reach your arms as far forward as comfortable","Breathe deeply — exhale fully to sink deeper into it"],
+    tip:"Wider knees = more hip stretch. Narrower knees = more back stretch. Go wide."
+  }
+];
+
+let currentStretchIdx=null, timerInterval=null, timerRemaining=0, timerRunning=false, timerSide=0;
+
+const DAYS=["Monday","Tuesday","Thursday","Friday"];
+const SESSION=["15 min Row","16 min Lift","25 min Elliptical"];
+const TABS=[["Home","Workout"],["Stretch","Stretch"],["Progress","Progress"],["Links","Demos"]];
+let currentDay="Monday", currentExIdx=null;
+
+// ---------- Dates ----------
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function fmtDate(s,withYear){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,withYear?{month:"short",day:"numeric",year:"2-digit"}:{month:"short",day:"numeric"});}
+function dateNum(s){const [y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d)/864e5;}
+let logDate=todayStr();
+
+// ---------- Storage ----------
+// LOG: one record per date × exercise × set  ->  key "YYYY-MM-DD|Exercise Name|setIdx" : {w, day}
+// DONE: set ticks, same key shape, so a refresh mid-workout doesn't lose them
+const LOG_KEY="gymapp-log-v1", DONE_KEY="gymapp-done-v1";
+function load(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){alert("Couldn't save — browser storage is full or blocked.");}}
+let LOG=load(LOG_KEY), DONE=load(DONE_KEY);
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{});}
+
+function exName(ei){return WORKOUTS[currentDay].exercises[ei].name;}
+function rk(date,name,si){return `${date}|${name}|${si}`;}
+function parseKey(k){const a=k.split("|");return {date:a[0],ex:a.slice(1,-1).join("|"),set:+a[a.length-1]};}
+
+function getWeight(ei,si){const r=LOG[rk(logDate,exName(ei),si)];return r&&r.w!=null?r.w:"";}
+function setWeight(ei,si,val){
+  const k=rk(logDate,exName(ei),si), v=parseFloat(val);
+  if(val===""||isNaN(v)){ if(!LOG[k]||LOG[k].w==null) return; LOG[k]={w:null,day:currentDay,t:Date.now()}; }
+  else { if(LOG[k]&&LOG[k].w===v) return; LOG[k]={w:v,day:currentDay,t:Date.now()}; }
+  save(LOG_KEY,LOG); markDirty();
+}
+
+// Sessions for one exercise: [{date, sets:[w0,w1,w2], top}] sorted by date
+function sessionsFor(name){
+  const by={};
+  for(const k in LOG){const p=parseKey(k);if(p.ex!==name||LOG[k].w==null)continue;(by[p.date]=by[p.date]||[])[p.set]=LOG[k].w;}
+  return Object.keys(by).sort().map(d=>{const sets=by[d];const vals=sets.filter(x=>x!=null);return {date:d,sets,top:Math.max(...vals)};});
+}
+function lastSessionBefore(name,date){const s=sessionsFor(name).filter(x=>x.date<date);return s.length?s[s.length-1]:null;}
+
+function setsCount(ex){return parseInt(ex.sets.match(/(\d+)/)?.[1]||"3");}
+function isSetDone(ei,si){return !!DONE[rk(logDate,exName(ei),si)];}
+function toggleSet(ei,si){
+  const k=rk(logDate,exName(ei),si);
+  if(DONE[k]) delete DONE[k]; else DONE[k]=1;
+  save(DONE_KEY,DONE);
+  const input=document.getElementById(`w-${ei}-${si}`);
+  if(input) setWeight(ei,si,input.value.trim());
+  renderDetail(currentExIdx);
+}
+function exAllDone(ei){const ex=WORKOUTS[currentDay].exercises[ei];return Array.from({length:setsCount(ex)},(_,i)=>isSetDone(ei,i)).every(Boolean);}
+function exDoneCount(ei){const ex=WORKOUTS[currentDay].exercises[ei];return Array.from({length:setsCount(ex)},(_,i)=>isSetDone(ei,i)).filter(Boolean).length;}
+
+// ---------- Navigation ----------
+function renderNavs(){
+  document.querySelectorAll(".nav-bar[data-tab]").forEach(nb=>{
+    const cur=nb.dataset.tab;
+    nb.innerHTML=TABS.map(([t,l])=>`<button class="nav-bar-btn${t===cur?' active':''}" onclick="showTab('${t}')">${l}</button>`).join("");
+  });
+}
+
+function showTab(tab){
+  ["screenHome","screenDetail","screenLinks","screenStretch","screenStretchDetail","screenProgress"].forEach(id=>document.getElementById(id).classList.remove("active"));
+  stopTimer();
+  if(tab==="Home"){renderHome();document.getElementById("screenHome").classList.add("active");}
+  else if(tab==="Links"){renderLinks();document.getElementById("screenLinks").classList.add("active");}
+  else if(tab==="Stretch"){renderStretchList();document.getElementById("screenStretch").classList.add("active");}
+  else if(tab==="Progress"){renderProgress();document.getElementById("screenProgress").classList.add("active");}
+  window.scrollTo(0,0);
+}
+
+function renderHome(){
+  const w=WORKOUTS[currentDay];
+  document.getElementById("dayTabs").innerHTML=DAYS.map(day=>{
+    const d=WORKOUTS[day],active=day===currentDay;
+    return `<button class="day-tab${active?' active':''}" style="${active?`background:${d.accent};border-color:${d.accent}`:'border-color:#d4cfc8'}" onclick="selectDay('${day}')">${d.label}</button>`;
+  }).join("");
+  const card=document.getElementById("workoutCard");
+  card.style.cssText=`background:linear-gradient(135deg,${w.accent}22,${w.accent}08);border:1px solid ${w.accent}33;`;
+  card.innerHTML=`
+    <div class="workout-day-label" style="color:${w.accent}">${currentDay}</div>
+    <div class="workout-day-title">${w.title}</div>
+    <div class="workout-day-sub">${w.subtitle}</div>
+    <div class="session-tags">${SESSION.map(t=>`<span class="session-tag">${t}</span>`).join("")}</div>
+    <div class="log-date-row">
+      <span>Logging for${logDate===todayStr()?' today':''}</span>
+      <input type="date" class="log-date-input" value="${logDate}" max="${todayStr()}" onchange="if(this.value){logDate=this.value;renderHome();}">
+    </div>`;
+  document.getElementById("exList").innerHTML=w.exercises.map((ex,i)=>{
+    const done=exAllDone(i),count=exDoneCount(i),total=setsCount(ex);
+    return `<button class="ex-item" style="background:${done?w.accent+'18':'#e9e5e0'};border-color:${done?w.accent:'#d4cfc8'}" onclick="showDetail(${i})">
+      <div><div class="ex-item-name" style="color:${done?w.accent:'#2a2520'}">${ex.name}</div><div class="ex-item-sets">${ex.sets}</div></div>
+      <div class="ex-item-right">
+        <div class="ex-item-arrow" style="color:${done?w.accent:'#c0b8b0'}">${done?'✓':'→'}</div>
+        ${count>0&&!done?`<div style="font-size:11px;color:${w.accent}">${count}/${total}</div>`:''}
+      </div>
+    </button>`;
+  }).join("");
+}
+
+function renderLinks(){
+  const BASE="https://musclewiki.com/exercise/";
+  document.getElementById("linksList").innerHTML=DAYS.map(day=>{
+    const w=WORKOUTS[day];
+    return `<div class="links-day-label" style="color:${w.accent}">${day} — ${w.title}</div>`+
+      w.exercises.map(ex=>`
+        <a class="link-item" href="${BASE}${ex.wiki}" target="_blank">
+          <span class="link-item-name">${ex.name}</span>
+          <span class="link-item-arrow">↗</span>
+        </a>`).join("");
+  }).join("");
+}
+
+function selectDay(day){currentDay=day;renderHome();}
+
+function showDetail(idx){
+  currentExIdx=idx;renderDetail(idx);
+  document.getElementById("screenHome").classList.remove("active");
+  document.getElementById("screenDetail").classList.add("active");
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  document.getElementById("screenDetail").classList.remove("active");
+  document.getElementById("screenHome").classList.add("active");
+  renderHome();window.scrollTo(0,0);
+}
+
+function renderDetail(idx){
+  const w=WORKOUTS[currentDay],ex=w.exercises[idx],a=w.accent,total=setsCount(ex);
+  const last=lastSessionBefore(ex.name,logDate);
+  document.getElementById("detailHeader").style.background=a;
+  document.getElementById("detailHeader").innerHTML=`
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div><div class="detail-day-label">${w.title} Day</div><div class="detail-ex-name">${ex.name}</div></div>`;
+
+  const altsHtml = ex.alts.map(alt=>`
+    <div class="alt-row">
+      <div><span class="alt-tag ${alt.type}">${alt.type === 'equipment' ? 'Equipment swap' : 'Different movement'}</span></div>
+      <div class="alt-name">${alt.name}</div>
+      <div class="alt-desc">${alt.desc}</div>
+    </div>`).join("");
+
+  const lastHtml=last
+    ? `<div class="last-time">Last time (${fmtDate(last.date)}): <b>${last.sets.map(x=>x==null?'–':x).join(' / ')} lbs</b></div>`
+    : `<div class="last-time">No previous sessions logged for this exercise.</div>`;
+
+  document.getElementById("detailBody").innerHTML=`
+    <a class="demo-btn" href="https://musclewiki.com/exercise/${ex.wiki}" target="_blank" style="background:${a}">▶ Watch Demo on Muscle Wiki</a>
+    <div class="muscle-tag" style="background:${a}22;color:${a}">${ex.muscles}</div>
+    <div class="sets-box" style="border:1px solid ${a}33">
+      <div class="sets-label" style="color:${a}">${ex.sets} — rest 60 sec between sets</div>
+      ${lastHtml}
+      <div class="sets-rows-wrap">${Array.from({length:total},(_,i)=>{
+        const done=isSetDone(idx,i);
+        const wt=getWeight(idx,i);
+        const prev=last&&last.sets[i]!=null?`last: ${last.sets[i]}`:'lbs';
+        return `<div class="set-row-item">
+          <button class="set-btn${done?' done':''}" style="${done?`background:${a};border-color:${a};color:#fff`:'border-color:#c0b8b0;color:#9a9088'}" onclick="toggleSet(${idx},${i})">${done?'✓':'S'+(i+1)}</button>
+          <div class="weight-input-wrap">
+            <input id="w-${idx}-${i}" class="weight-input" type="number" inputmode="decimal" placeholder="${prev}" value="${wt}" onchange="setWeight(${idx},${i},this.value.trim())" onblur="setWeight(${idx},${i},this.value.trim())">
+          </div>
+        </div>`;
+      }).join("")}</div>
+      <div class="sets-hint">Tap set to mark complete · Enter weight in lbs · Logged to ${logDate===todayStr()?'today':fmtDate(logDate,true)} automatically</div>
+    </div>
+    <div class="steps-box">
+      <div class="steps-label">How to do it</div>
+      ${ex.how.map((s,i)=>`<div class="step-row"><div class="step-num" style="background:${a}">${i+1}</div><div class="step-text">${s}</div></div>`).join("")}
+    </div>
+    <div class="tip-box">
+      <div class="tip-label" style="color:${a}">Key tip</div>
+      <div class="tip-text">${ex.tip}</div>
+    </div>
+    <div class="alts-box">
+      <div class="alts-title">Alternatives</div>
+      ${altsHtml}
+    </div>
+    <div class="detail-nav-row">
+      ${idx>0?`<button class="detail-nav-btn prev" onclick="showDetail(${idx-1})">← Prev</button>`:''}
+      ${idx<w.exercises.length-1?`<button class="detail-nav-btn next" style="background:${a}" onclick="showDetail(${idx+1})">Next →</button>`:''}
+    </div>`;
+}
+
+// ---------- Progress ----------
+// Unique exercises in program order; colour = accent of the first day it appears
+const EXERCISES=[];const EX_COLOR={};
+DAYS.forEach(d=>WORKOUTS[d].exercises.forEach(e=>{if(!EX_COLOR[e.name]){EXERCISES.push(e.name);EX_COLOR[e.name]=WORKOUTS[d].accent;}}));
+let progEx=null;
+
+function renderProgress(){
+  // default to the most recently logged exercise
+  if(!progEx){
+    let best=null;for(const k in LOG){if(LOG[k].w==null)continue;const p=parseKey(k);if(!best||p.date>best.date)best=p;}
+    progEx=best&&EX_COLOR[best.ex]?best.ex:EXERCISES[0];
+  }
+  const sel=document.getElementById("progSelect");
+  sel.innerHTML=EXERCISES.map(n=>{const c=sessionsFor(n).length;return `<option value="${n}"${n===progEx?' selected':''}>${n}${c?` (${c})`:''}</option>`;}).join("");
+
+  const ses=sessionsFor(progEx), col=EX_COLOR[progEx];
+  let html="";
+  if(ses.length){
+    const first=ses[0].top, latest=ses[ses.length-1].top, best=Math.max(...ses.map(s=>s.top)), chg=latest-first;
+    html+=`<div class="stat-row">
+      <div class="stat"><div class="stat-val">${latest}</div><div class="stat-lbl">Latest top</div></div>
+      <div class="stat"><div class="stat-val">${best}</div><div class="stat-lbl">Best</div></div>
+      <div class="stat"><div class="stat-val">${chg>0?'+':''}${chg}</div><div class="stat-lbl">Since first</div></div>
+    </div>`;
+  }
+  html+=`<div class="prog-card"><div class="prog-card-label">Top-set weight (lbs)</div><div class="chart-wrap" id="chartWrap">${chartSVG(ses,col)}<div class="chart-tip" id="chartTip"></div></div></div>`;
+  if(ses.length){
+    html+=`<div class="prog-card"><div class="prog-card-label">Sessions</div>${ses.slice().reverse().map(s=>`
+      <div class="hist-row"><div class="hist-date">${fmtDate(s.date,true)}</div>
+      <div class="hist-sets">${s.sets.map(x=>x==null?'–':x).join(' / ')}</div>
+      <button class="hist-del" title="Delete this session" onclick="deleteSession('${s.date}')">×</button></div>`).join("")}</div>`;
+  }
+  document.getElementById("progBody").innerHTML=html;
+  wireChart(ses);
+  renderSyncCard();
+  const live=Object.keys(LOG).filter(k=>LOG[k].w!=null), n=live.length, days=new Set(live.map(k=>k.slice(0,10))).size;
+  document.getElementById("dataNote").innerHTML=`${n} set${n===1?'':'s'} logged across ${days} day${days===1?'':'s'}. ${syncOn()?'Synced to GitHub; this device keeps an offline copy.':'Stored on this device only — connect GitHub sync above, or export a backup now and then.'}`;
+}
+
+// Chart geometry (SVG units; scales to card width)
+const CW=320, CH=180, PAD={l:34,r:12,t:12,b:24};
+let chartPts=[];
+function chartSVG(ses,col){
+  if(ses.length===0) return `<div class="chart-empty">No weights logged yet. Enter weights on the workout screen and they'll show up here.</div>`;
+  const xs=ses.map(s=>dateNum(s.date)), ys=ses.map(s=>s.top);
+  let x0=Math.min(...xs), x1=Math.max(...xs); if(x0===x1){x0-=3;x1+=3;}
+  let ymin=Math.min(...ys), ymax=Math.max(...ys);
+  // nice y range with a little headroom
+  const span=Math.max(ymax-ymin,10), step=niceStep(span/4);
+  let y0=Math.floor((ymin-span*0.1)/step)*step, y1=Math.ceil((ymax+span*0.1)/step)*step; if(y0<0)y0=0;
+  const iw=CW-PAD.l-PAD.r, ih=CH-PAD.t-PAD.b;
+  const X=v=>PAD.l+(v-x0)/(x1-x0)*iw, Y=v=>PAD.t+(1-(v-y0)/(y1-y0))*ih;
+  let g="";
+  for(let v=y0;v<=y1+1e-9;v+=step){
+    g+=`<line x1="${PAD.l}" x2="${CW-PAD.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#d4cfc8" stroke-width="1"/>`+
+       `<text x="${PAD.l-6}" y="${Y(v)+4}" text-anchor="end" font-size="10" fill="#9a9088">${+v.toFixed(1)}</text>`;
+  }
+  g+=`<text x="${PAD.l}" y="${CH-6}" font-size="10" fill="#9a9088">${fmtDate(ses[0].date,true)}</text>`;
+  if(ses.length>1) g+=`<text x="${CW-PAD.r}" y="${CH-6}" text-anchor="end" font-size="10" fill="#9a9088">${fmtDate(ses[ses.length-1].date,true)}</text>`;
+  chartPts=ses.map(s=>({x:X(dateNum(s.date)),y:Y(s.top),s}));
+  const path=chartPts.map((p,i)=>`${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join("");
+  if(ses.length>1) g+=`<path d="${path}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g+=chartPts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="${col}" stroke="#e9e5e0" stroke-width="2"/>`).join("");
+  const lp=chartPts[chartPts.length-1];
+  g+=`<text x="${Math.min(lp.x,CW-PAD.r)}" y="${lp.y-10}" text-anchor="${lp.x>CW-40?'end':'middle'}" font-size="11" font-weight="bold" fill="#2a2520">${lp.s.top}</text>`;
+  g+=`<line id="chartCross" x1="0" x2="0" y1="${PAD.t}" y2="${CH-PAD.b}" stroke="#9a9088" stroke-width="1" stroke-dasharray="3 3" visibility="hidden"/>`;
+  g+=`<rect id="chartHit" x="${PAD.l}" y="0" width="${iw}" height="${CH}" fill="transparent"/>`;
+  return `<svg viewBox="0 0 ${CW} ${CH}" role="img" aria-label="Top-set weight over time">${g}</svg>`;
+}
+function niceStep(raw){const p=Math.pow(10,Math.floor(Math.log10(raw)));const f=raw/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
+function wireChart(ses){
+  const hit=document.getElementById("chartHit"); if(!hit) return;
+  const svg=hit.ownerSVGElement, tip=document.getElementById("chartTip"), cross=document.getElementById("chartCross"), wrap=document.getElementById("chartWrap");
+  const show=e=>{
+    const r=svg.getBoundingClientRect(), cx=(e.touches?e.touches[0].clientX:e.clientX);
+    const sx=(cx-r.left)/r.width*CW;
+    let p=chartPts[0];for(const q of chartPts) if(Math.abs(q.x-sx)<Math.abs(p.x-sx)) p=q;
+    cross.setAttribute("x1",p.x);cross.setAttribute("x2",p.x);cross.setAttribute("visibility","visible");
+    tip.innerHTML=`<b>${fmtDate(p.s.date,true)}</b><br>${p.s.sets.map(x=>x==null?'–':x).join(' / ')} lbs`;
+    tip.style.left=`${Math.max(60,Math.min(r.width-60,p.x/CW*r.width))}px`; tip.style.top=`${p.y/CH*r.height}px`; tip.style.display="block";
+  };
+  const hide=()=>{tip.style.display="none";cross.setAttribute("visibility","hidden");};
+  hit.addEventListener("mousemove",show); hit.addEventListener("mouseleave",hide);
+  hit.addEventListener("touchstart",show,{passive:true}); hit.addEventListener("touchmove",show,{passive:true}); hit.addEventListener("touchend",()=>setTimeout(hide,1500));
+}
+
+function deleteSession(date){
+  if(!confirm(`Delete ${progEx} on ${fmtDate(date,true)}?`)) return;
+  const now=Date.now();for(const k in LOG){const p=parseKey(k);if(p.ex===progEx&&p.date===date) LOG[k]={w:null,day:LOG[k].day,t:now};}
+  for(const k in DONE){const p=parseKey(k);if(p.ex===progEx&&p.date===date) delete DONE[k];}
+  save(LOG_KEY,LOG); save(DONE_KEY,DONE); markDirty(); renderProgress();
+}
+
+function download(name,text,type){
+  const blob=new Blob([text],{type}), url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+// Long format: one row per set — reads straight into Stata with `import delimited`
+function exportCSV(){
+  const rows=Object.keys(LOG).filter(k=>LOG[k].w!=null).map(k=>{const p=parseKey(k);return [p.date,LOG[k].day||"",p.ex,p.set+1,LOG[k].w];})
+    .sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:a[2]<b[2]?-1:a[2]>b[2]?1:a[3]-b[3]);
+  const q=s=>/[",]/.test(String(s))?`"${String(s).replace(/"/g,'""')}"`:s;
+  const csv=["date,program_day,exercise,set,weight_lbs",...rows.map(r=>r.map(q).join(","))].join("\n");
+  download(`workout_log_${todayStr()}.csv`,csv,"text/csv");
+}
+function exportBackup(){download(`workout_backup_${todayStr()}.json`,JSON.stringify({v:1,log:LOG,done:DONE}),"application/json");}
+function importBackup(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result); if(!d.log) throw 0;
+      const n=Object.values(d.log).filter(r=>r.w!=null).length;
+      if(!confirm(`Merge ${n} logged sets from this backup into this device? Where both have the same date/exercise/set, the newer edit wins.`)) return;
+      LOG=mergeLogs(d.log,LOG); Object.assign(DONE,d.done||{});
+      save(LOG_KEY,LOG); save(DONE_KEY,DONE); markDirty(); progEx=null; renderProgress();
+    }catch(e){alert("That file isn't a workout backup.");}
+    input.value="";
+  };
+  r.readAsText(f);
+}
+
+
+// ---------- GitHub sync ----------
+// The log is stored as a CSV in a GitHub repo (ideally private), read and written via the
+// GitHub Contents API with a fine-grained token scoped to that one repo.
+// Local storage stays as an offline cache; changes push a few seconds after you stop typing.
+// Each record carries an update time (t); merges keep the newer record per date×exercise×set,
+// and deletions are kept as blank-weight rows so they propagate to other devices.
+const SYNC_KEY="gymapp-sync-v1";
+let SYNC=load(SYNC_KEY), syncing=false, syncAgain=false, syncTimer=null, dirty=false;
+let syncStatus={kind:"off",msg:""};
+function syncOn(){return !!(SYNC.owner&&SYNC.repo&&SYNC.token);}
+function syncPath(){return (SYNC.path||"log.csv").replace(/^\/+/,"");}
+function markDirty(){
+  if(!syncOn()) return;
+  dirty=true; setSyncStatus("pending","Unsynced changes");
+  clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,4000);
+}
+function setSyncStatus(kind,msg){
+  syncStatus={kind,msg};
+  const colors={ok:"#4a8a65",pending:"#8a7040",busy:"#8a7040",err:"#a05a5a",off:"#9a9088"};
+  const icon={ok:"✓",pending:"•",busy:"↻",err:"!",off:""}[kind];
+  document.querySelectorAll(".sync-status").forEach(el=>{
+    el.style.color=colors[kind]; el.textContent=syncOn()?`${icon} ${msg}`:"";
+  });
+}
+
+const LOG_HEADER="date,program_day,exercise,set,weight_lbs,updated_ms";
+function csvCell(s){s=s==null?"":String(s);return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s;}
+function logToCSV(log){
+  const rows=Object.keys(log).map(k=>{const p=parseKey(k),r=log[k];return [p.date,r.day||"",p.ex,p.set+1,r.w==null?"":r.w,r.t||0];})
+    .sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:a[2]<b[2]?-1:a[2]>b[2]?1:a[3]-b[3]);
+  return [LOG_HEADER,...rows.map(r=>r.map(csvCell).join(","))].join("\n")+"\n";
+}
+function parseCSV(text){
+  const rows=[];let row=[],cell="",q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(cell);cell="";}
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n')i++; row.push(cell);cell=""; if(row.some(x=>x!==""))rows.push(row); row=[]; }
+    else cell+=c;
+  }
+  row.push(cell); if(row.some(x=>x!==""))rows.push(row);
+  return rows;
+}
+function csvToLog(text){
+  const out={}, rows=parseCSV(text||""); if(!rows.length) return out;
+  const h=rows[0].map(x=>x.trim()), ix=n=>h.indexOf(n);
+  const iD=ix("date"),iP=ix("program_day"),iE=ix("exercise"),iS=ix("set"),iW=ix("weight_lbs"),iT=ix("updated_ms");
+  if(iD<0||iE<0||iS<0||iW<0) throw new Error("Log file has unexpected columns");
+  for(const r of rows.slice(1)){
+    const w=r[iW]===""||r[iW]==null?null:parseFloat(r[iW]);
+    out[rk(r[iD],r[iE],(+r[iS])-1)]={w:(w==null||isNaN(w))?null:w,day:iP>=0?r[iP]:"",t:iT>=0?(+r[iT]||0):0};
+  }
+  return out;
+}
+function mergeLogs(a,b){
+  const out={...b};
+  for(const k in a){ if(!out[k]||(a[k].t||0)>=(out[k].t||0)) out[k]=a[k]; }
+  return out;
+}
+
+function b64encode(text){const bytes=new TextEncoder().encode(text);let s="";for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s);}
+function b64decode(b64){const bin=atob(b64.replace(/\s/g,""));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)));}
+function ghHeaders(){return {Authorization:`Bearer ${SYNC.token}`,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};}
+function ghURL(){return `https://api.github.com/repos/${encodeURIComponent(SYNC.owner)}/${encodeURIComponent(SYNC.repo)}/contents/${syncPath().split("/").map(encodeURIComponent).join("/")}`;}
+async function ghErr(res,what){
+  let m=""; try{m=(await res.json()).message||"";}catch(e){}
+  if(res.status===401) return new Error("Token rejected (expired or mistyped)");
+  if(res.status===403) return new Error(`No permission to ${what} — token needs Contents: Read and write on ${SYNC.repo}`);
+  if(res.status===404) return new Error(`Can't see ${SYNC.owner}/${SYNC.repo} with this token`);
+  return new Error(`GitHub ${res.status}${m?": "+m:""}`);
+}
+async function ghGet(){
+  const res=await fetch(ghURL(),{headers:ghHeaders(),cache:"no-store"});
+  if(res.status===404){
+    // distinguish "file not created yet" from "repo not visible"
+    const rr=await fetch(`https://api.github.com/repos/${encodeURIComponent(SYNC.owner)}/${encodeURIComponent(SYNC.repo)}`,{headers:ghHeaders(),cache:"no-store"});
+    if(rr.ok) return {sha:null,text:""};
+    throw await ghErr(rr,"read");
+  }
+  if(!res.ok) throw await ghErr(res,"read");
+  const j=await res.json();
+  let text=j.content?b64decode(j.content):"";
+  if(!text&&j.size>0&&j.download_url){const r2=await fetch(j.download_url,{cache:"no-store"});text=await r2.text();}
+  return {sha:j.sha,text};
+}
+async function ghPut(text,sha){
+  const body={message:`Workout log ${todayStr()}`,content:b64encode(text)}; if(sha) body.sha=sha;
+  const res=await fetch(ghURL(),{method:"PUT",headers:{...ghHeaders(),"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(res.ok) return true;
+  if(res.status===409||res.status===422) return false; // file changed underneath us — re-pull and retry
+  throw await ghErr(res,"write");
+}
+async function syncNow(){
+  if(!syncOn()) return;
+  if(syncing){syncAgain=true;return;}
+  clearTimeout(syncTimer); syncing=true; setSyncStatus("busy","Syncing…");
+  try{
+    let done=false;
+    for(let attempt=0;attempt<3&&!done;attempt++){
+      const remote=await ghGet();
+      LOG=mergeLogs(LOG,csvToLog(remote.text)); save(LOG_KEY,LOG);
+      const out=logToCSV(LOG);
+      if(out===remote.text){done=true;break;}
+      done=await ghPut(out,remote.sha);
+    }
+    if(!done) throw new Error("Couldn't save after 3 tries — will retry");
+    dirty=false;
+    setSyncStatus("ok",`Synced ${new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}`);
+    refreshAfterSync();
+  }catch(e){
+    setSyncStatus("err",e.message||"Sync failed"); if(dirty){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,60000);}
+  }
+  syncing=false;
+  if(syncAgain){syncAgain=false;syncNow();}
+}
+// re-render list screens with merged data, but never the exercise screen (would clobber typing)
+function refreshAfterSync(){
+  if(document.getElementById("screenHome").classList.contains("active")) renderHome();
+  if(document.getElementById("screenProgress").classList.contains("active")) renderProgress();
+}
+document.addEventListener("visibilitychange",()=>{ if(syncOn()) syncNow(); });
+window.addEventListener("online",()=>{ if(syncOn()) syncNow(); });
+
+function renderSyncCard(){
+  const el=document.getElementById("syncCard"); if(!el) return;
+  if(syncOn()){
+    el.innerHTML=`<div class="prog-card-label">GitHub sync</div>
+      <div class="data-note" style="margin-top:0">Saving to <b>${SYNC.owner}/${SYNC.repo}/${syncPath()}</b></div>
+      <div class="sync-status data-note" style="margin:8px 0 12px"></div>
+      <div class="data-btns"><button class="data-btn primary" onclick="syncNow()">Sync now</button><button class="data-btn" onclick="disconnectSync()">Disconnect</button></div>`;
+  } else {
+    el.innerHTML=`<div class="prog-card-label">GitHub sync</div>
+      <div class="data-note" style="margin:0 0 12px">Save your log to a GitHub repo so it's on every device. Use a <b>private</b> repo — anything in a public repo is public.</div>
+      <input class="weight-input sync-in" id="sOwner" placeholder="GitHub username" value="${SYNC.owner||"jdwarriors-jd"}" autocapitalize="off" autocorrect="off">
+      <input class="weight-input sync-in" id="sRepo" placeholder="Repo name" value="${SYNC.repo||"workout-data"}" autocapitalize="off" autocorrect="off">
+      <input class="weight-input sync-in" id="sPath" placeholder="File path" value="${SYNC.path||"log.csv"}" autocapitalize="off" autocorrect="off">
+      <input class="weight-input sync-in" id="sToken" type="password" placeholder="Fine-grained access token (github_pat_…)" autocapitalize="off" autocorrect="off">
+      <div class="data-btns"><button class="data-btn primary" onclick="connectSync()">Connect &amp; sync</button></div>
+      <div class="sync-status data-note"></div>`;
+  }
+  setSyncStatus(syncStatus.kind,syncStatus.msg);
+}
+async function connectSync(){
+  const v=id=>document.getElementById(id).value.trim();
+  if(!v("sOwner")||!v("sRepo")||!v("sToken")){alert("Fill in username, repo and token.");return;}
+  SYNC={owner:v("sOwner"),repo:v("sRepo"),path:v("sPath")||"log.csv",token:v("sToken")};
+  save(SYNC_KEY,SYNC); renderSyncCard(); dirty=true;
+  await syncNow();
+  if(syncStatus.kind==="err"){ // keep the details, drop the bad token so they can retry
+    const m=syncStatus.msg; SYNC.token=""; save(SYNC_KEY,SYNC); renderSyncCard(); setSyncStatus("err",m);
+    document.querySelectorAll(".sync-status").forEach(el=>{el.textContent="! "+m;el.style.color="#a05a5a";});
+  } else renderProgress();
+}
+function disconnectSync(){
+  if(!confirm("Stop syncing on this device? Your log stays on this device and in the repo; the token is removed from this browser.")) return;
+  SYNC={owner:SYNC.owner,repo:SYNC.repo,path:SYNC.path}; save(SYNC_KEY,SYNC); setSyncStatus("off",""); renderProgress();
+}
+
+// --- Stretch functions ---
+
+function renderStretchList(){
+  const a="#7a6a99";
+  document.getElementById("stretchList").innerHTML=STRETCHES.map((s,i)=>{
+    const dur=s.bilateral?`${s.duration}s × 2 sides`:`${s.duration}s hold`;
+    return `<button class="stretch-item" onclick="showStretchDetail(${i})">
+      <div><div class="stretch-item-name">${s.name}</div><div class="stretch-item-sub">${dur} · ${s.muscles}</div></div>
+      <div class="stretch-item-arrow">→</div>
+    </button>`;
+  }).join("");
+}
+
+function showStretchDetail(idx){
+  currentStretchIdx=idx;
+  stopTimer();
+  timerSide=0;
+  renderStretchDetail(idx);
+  document.getElementById("screenStretch").classList.remove("active");
+  document.getElementById("screenStretchDetail").classList.add("active");
+  window.scrollTo(0,0);
+}
+
+function goBackStretch(){
+  stopTimer();
+  document.getElementById("screenStretchDetail").classList.remove("active");
+  document.getElementById("screenStretch").classList.add("active");
+  renderStretchList();
+  window.scrollTo(0,0);
+}
+
+function renderStretchDetail(idx){
+  const s=STRETCHES[idx], a="#7a6a99";
+  document.getElementById("stretchDetailHeader").innerHTML=`
+    <button class="back-btn" onclick="goBackStretch()">←</button>
+    <div><div class="detail-day-label" style="color:rgba(255,255,255,0.75)">Nightly Stretch</div><div class="detail-ex-name">${s.name}</div></div>`;
+
+  const circ=2*Math.PI*62;
+  const remaining=timerRunning||timerRemaining>0?timerRemaining:s.duration;
+  const frac=remaining/s.duration;
+  const offset=circ*(1-frac);
+  const sideLabel=s.bilateral?(timerSide===0?"Left Side":"Right Side"):"";
+  const timerDone=remaining===0;
+  const bothDone=timerDone&&(!s.bilateral||timerSide===1);
+
+  let timerBtns="";
+  if(bothDone){
+    timerBtns=`<button class="timer-btn secondary" onclick="resetTimer(${idx})">Reset</button>`;
+  } else if(timerRunning){
+    timerBtns=`<button class="timer-btn secondary" onclick="pauseTimer(${idx})">Pause</button>`;
+  } else if(timerDone && s.bilateral && timerSide===0){
+    timerBtns=`<button class="timer-btn primary" onclick="startOtherSide(${idx})">Start Right Side</button>`;
+  } else {
+    timerBtns=`<button class="timer-btn primary" onclick="startTimer(${idx})">${timerRemaining>0&&timerRemaining<s.duration?'Resume':'Start'}</button>
+      ${timerRemaining>0?`<button class="timer-btn secondary" onclick="resetTimer(${idx})">Reset</button>`:''}`;
+  }
+
+  document.getElementById("stretchDetailBody").innerHTML=`
+    <div class="muscle-tag" style="background:${a}22;color:${a}">${s.muscles}</div>
+    <a class="demo-btn" href="${s.video}" target="_blank" style="background:${a}">▶ Watch Demo on YouTube</a>
+    <div class="timer-box">
+      ${sideLabel?`<div class="timer-side-label">${sideLabel}</div>`:''}
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring-svg" width="140" height="140" viewBox="0 0 140 140">
+          <circle class="timer-ring-bg" cx="70" cy="70" r="62"/>
+          <circle class="timer-ring-fg" cx="70" cy="70" r="62" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="${bothDone?'stroke:#4a8a65':''}"/>
+        </svg>
+        <div class="timer-ring-text">${bothDone?'✓':remaining}</div>
+      </div>
+      <div class="timer-controls">${timerBtns}</div>
+      ${bothDone?'<div class="timer-done">Done</div>':''}
+    </div>
+    <div class="steps-box">
+      <div class="steps-label">How to do it</div>
+      ${s.how.map((h,i)=>`<div class="step-row"><div class="step-num" style="background:${a}">${i+1}</div><div class="step-text">${h}</div></div>`).join("")}
+    </div>
+    <div class="tip-box">
+      <div class="tip-label" style="color:${a}">Key tip</div>
+      <div class="tip-text">${s.tip}</div>
+    </div>
+    <div class="stretch-why-box">
+      <div class="stretch-why-label">Why this stretch</div>
+      <div class="stretch-why-text">${s.why}</div>
+    </div>
+    <div class="stretch-nav-row">
+      ${idx>0?`<button class="stretch-nav-btn prev" onclick="showStretchDetail(${idx-1})">← Prev</button>`:''}
+      ${idx<STRETCHES.length-1?`<button class="stretch-nav-btn next" onclick="showStretchDetail(${idx+1})">Next →</button>`:''}
+    </div>`;
+}
+
+function startTimer(idx){
+  const s=STRETCHES[idx];
+  if(timerRemaining<=0) timerRemaining=s.duration;
+  timerRunning=true;
+  renderStretchDetail(idx);
+  timerInterval=setInterval(()=>{
+    timerRemaining--;
+    if(timerRemaining<=0){
+      timerRemaining=0;
+      timerRunning=false;
+      clearInterval(timerInterval);
+      timerInterval=null;
+      // vibrate if available
+      if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    }
+    renderStretchDetail(idx);
+  },1000);
+}
+
+function pauseTimer(idx){
+  timerRunning=false;
+  clearInterval(timerInterval);
+  timerInterval=null;
+  renderStretchDetail(idx);
+}
+
+function resetTimer(idx){
+  stopTimer();
+  timerSide=0;
+  timerRemaining=0;
+  renderStretchDetail(idx);
+}
+
+function startOtherSide(idx){
+  timerSide=1;
+  timerRemaining=0;
+  timerRunning=false;
+  startTimer(idx);
+}
+
+function stopTimer(){
+  timerRunning=false;
+  timerRemaining=0;
+  timerSide=0;
+  clearInterval(timerInterval);
+  timerInterval=null;
+}
+
+(function(){const t=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];if(DAYS.includes(t))currentDay=t;})();
+renderNavs();
+renderHome();
+if(syncOn()){setSyncStatus("busy","Syncing…");syncNow();}
+</script>
+</body>
+</html>
